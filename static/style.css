@@ -1,0 +1,6 @@
+body{font-family: Inter, Arial, sans-serif;background:#f6f8fb;color:#111}
+.container{max-width:900px;margin:40px auto;padding:20px;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+textarea{width:100%;padding:12px;border-radius:6px;border:1px solid #ddd;font-size:14px}
+button{padding:10px 14px;margin-top:8px;margin-right:8px;border-radius:6px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+.answer{white-space:pre-wrap;background:#f2f6ff;padding:12px;border-radius:6px}
+a{color:#2563eb}

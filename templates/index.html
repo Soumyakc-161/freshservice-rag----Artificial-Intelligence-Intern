@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Freshservice API — Local RAG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Freshservice API — Q&A (Local embeddings)</h1>
+    <p>Ask questions about the Freshservice API docs (scraped starting at ticket attributes).</p>
+
+    <textarea id="question" placeholder="Type your question here..." rows="4"></textarea>
+    <button id="askBtn">Ask</button>
+    <button id="ingestBtn">(Re)Build Local Index</button>
+
+    <div id="output"></div>
+  </div>
+
+<script>
+document.getElementById('askBtn').addEventListener('click', async ()=>{
+  const q = document.getElementById('question').value.trim();
+  if(!q){ alert('Enter a question'); return; }
+  document.getElementById('output').innerHTML = "<p>Thinking…</p>";
+  const res = await fetch('/ask', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({question:q})
+  });
+  const data = await res.json();
+  if(data.error){
+    document.getElementById('output').innerHTML = '<pre style="color:red;">'+data.error+'</pre>';
+    return;
+  }
+  let html = `<h2>Answer</h2><div class="answer">${data.answer.replace(/\n/g,'<br/>')}</div>`;
+  html += `<h3>Citations</h3><ul>`;
+  for(const c of data.citations){
+    html += `<li><a href="${c.url}" target="_blank">${c.title}</a> (sim: ${c.similarity.toFixed(3)})</li>`;
+  }
+  html += `</ul><p><strong>Confidence:</strong> ${data.confidence.toFixed(3)}</p>`;
+  document.getElementById('output').innerHTML = html;
+});
+
+document.getElementById('ingestBtn').addEventListener('click', async ()=>{
+  if(!confirm("This will rebuild the local embeddings (may take a few minutes). Continue?")) return;
+  document.getElementById('output').innerHTML = "<p>Rebuilding local index...</p>";
+  const res = await fetch('/ingest_local', {method:'POST'});
+  const data = await res.json();
+  if(data.error) document.getElementById('output').innerHTML = '<pre style="color:red;">'+data.error+'</pre>'; else document.getElementById('output').innerHTML = '<pre>'+JSON.stringify(data,null,2)+'</pre>';
+});
+</script>
+</body>
+</html>
